@@ -57204,9 +57204,12 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "login", function() { return login; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getLocalUser", function() { return getLocalUser; });
+/* harmony import */ var _general__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./general */ "./resources/js/helpers/general.js");
+
 function login(credentials) {
   return new Promise(function (res, rej) {
     axios.post('/api/auth/login', credentials).then(function (response) {
+      Object(_general__WEBPACK_IMPORTED_MODULE_0__["setAuthorization"])(response.data.access_token);
       res(response.data);
     })["catch"](function (errors) {
       rej('Wrong email or Password');
@@ -57229,12 +57232,13 @@ function getLocalUser() {
 /*!*****************************************!*\
   !*** ./resources/js/helpers/general.js ***!
   \*****************************************/
-/*! exports provided: initialize */
+/*! exports provided: initialize, setAuthorization */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "initialize", function() { return initialize; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setAuthorization", function() { return setAuthorization; });
 function initialize(store, router) {
   router.beforeEach(function (to, from, next) {
     var requiresAuth = to.matched.some(function (record) {
@@ -57258,7 +57262,13 @@ function initialize(store, router) {
 
     return Promise.reject(error);
   });
-  axios.defaults.headers.common['Authorization'] = "Bearer ".concat(store.getters.currentUser.token);
+
+  if (store.getters.currentUser) {
+    setAuthorization(store.getters.currentUser.token);
+  }
+}
+function setAuthorization(token) {
+  axios.defaults.headers.common['Authorization'] = "Bearer ".concat(token);
 }
 
 /***/ }),
